@@ -322,6 +322,52 @@ namespace IdentitySample.Controllers
             return result.Succeeded ? RedirectToAction("ManageLogins") : RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });
         }
 
+        //jkhalack
+        //GET: /Manage/UserInfo
+        public ActionResult UserInfo()
+        {
+            var user = UserManager.FindById(User.Identity.GetUserId());
+            if (user == null)
+            {
+                return View("Error");
+            }
+            return View(user);
+        }
+        //jkhalack
+        //POST: /Manage/EditInfo
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UserInfo(ApplicationUser UpdatedUser)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(UpdatedUser);
+            }
+            //retrieve the user id
+            var SavedUser = UserManager.FindById(UpdatedUser.Id);//this is why we needed hiddenfor field
+            if(SavedUser==null)
+            {
+                return View("Error");
+            }
+
+            SavedUser.FirstName = UpdatedUser.FirstName;
+            SavedUser.LastName = UpdatedUser.LastName;
+            //SavedUser.Email = UpdatedUser.Email;
+            SavedUser.Address = UpdatedUser.Address;
+            SavedUser.City = UpdatedUser.City;
+            SavedUser.Province = UpdatedUser.Province;
+            SavedUser.PostalCode = UpdatedUser.PostalCode;
+            //SavedUser.UserName = UpdatedUser.UserName;//
+
+            //update
+            UserManager.Update(SavedUser);
+
+
+
+
+
+            return RedirectToAction("Index", "Manage");
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing && _userManager != null)
